@@ -216,21 +216,6 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
         return new SliceImpl<>(orderedReviews, pageable, hasNext);
     }
 
-    @Override
-    public void softDeleteByBookId(UUID bookId) {
-
-        queryFactory.update(qComment)
-                .where(qComment.review.book.id.eq(bookId))
-                .set(qComment.isActive, false)
-                .execute();
-
-        queryFactory.update(qReview)
-                .where(qReview.book.id.eq(bookId))
-                .set(qReview.isActive, false)
-                .execute();
-
-    }
-
     /**
      where절 Predicate 생성 메서드
      */
@@ -285,9 +270,25 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     }
 
     // 보조 정렬 조건 (생성일시)
+
     private OrderSpecifier<?> getBatchSecondaryOrderSpecifier(boolean descending) {
         Order order = descending ? Order.DESC : Order.ASC;
         return new OrderSpecifier<>(order, qReview.createdAt);
+    }
+
+    @Override
+    public void softDeleteByBookId(UUID bookId) {
+
+        queryFactory.update(qComment)
+                .where(qComment.review.book.id.eq(bookId))
+                .set(qComment.isActive, false)
+                .execute();
+
+        queryFactory.update(qReview)
+                .where(qReview.book.id.eq(bookId))
+                .set(qReview.isActive, false)
+                .execute();
+
     }
 
     private Map<String, Object> detailMap(String key, Object value) {
